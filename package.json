@@ -1,0 +1,31 @@
+{
+  "name": "fis3-deploy-i18n-ejs",
+  "version": "0.2.1",
+  "description": "A fis3 plugin to generate html from i18n language file and template file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm install fis3-deploy-i18n-ejs && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonyc726/fis3-deploy-i18n-ejs"
+  },
+  "keywords": [
+    "fis3",
+    "i18n",
+    "language",
+    "ejs"
+  ],
+  "author": "tony <zhujf620@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tonyc726/fis3-deploy-i18n-ejs/issues"
+  },
+  "homepage": "https://github.com/tonyc726/fis3-deploy-i18n-ejs",
+  "dependencies": {
+    "ejs": "^2.3.4",
+    "extend": "^3.0.0",
+    "fs": "0.0.2",
+    "walk": "^2.3.9"
+  }
+}
