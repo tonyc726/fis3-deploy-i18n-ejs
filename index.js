@@ -14,6 +14,7 @@ var path = require('path');
 var walk = require('walk');
 var ejs = require('ejs');
 var extend = require('extend');
+var _ = require('lodash');
 
 function propDeepVerifier (obj, propsPath, i, content) {
   if (obj[propsPath[i]] === undefined) {
@@ -34,7 +35,8 @@ module.exports = function(srcOptions, modified, total, next) {
     'i18n': 'lang',
     'dist': 'html/$lang/$file',
     'default': '',
-    'keepParentDirectoryList': []
+    'keepParentDirectoryList': [],
+    'langFileWalkerProcess': _.noop
   };
   extend(options,srcOptions);
 
@@ -48,7 +50,8 @@ module.exports = function(srcOptions, modified, total, next) {
 
   walker.on('file', (root, fileStat, next) => {
     var propsPath = root.replace(i18nResourcePath, '').replace(/^\//, '').replace(/\/$/, '').split('/')
-    propsPath.push(fileStat.name.replace(/\.(json|js)$/, ''))
+    var langFileName = fileStat.name.replace(/\.(json|js)$/, '')
+    propsPath.push(langFileName)
     propsPath = propsPath.filter(function (propPath) {
       return propPath && propPath.length !== 0
     })
@@ -58,6 +61,9 @@ module.exports = function(srcOptions, modified, total, next) {
       content = require(filePath)
     } else if (/\.json$/.test(fileStat.name)) {
       content = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    }
+    if(_.isFunction(options['langFileWalkerProcess'])){
+      content = _.extend(content, options['langFileWalkerProcess'](content, langDefault, langFileName))
     }
     propDeepVerifier(langList, propsPath, 0, content)
     next()

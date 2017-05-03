@@ -43,6 +43,7 @@ fis.match('**', {
         default: 'zh', // 新增默认语言配置项
         dist: 'html/$lang/$file',  //destination: $lang(en,zh....),$file
         keepParentDirectoryList: ['keep-parent-floder'] // 新增保留父级目录结构的关键字清单
+        langFileWalkerProcess: (langFileContent, langDefault, langFileName) => {...}
     }),
     fis.plugin('local-deliver'),
     ]

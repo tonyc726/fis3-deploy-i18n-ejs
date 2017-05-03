@@ -1,6 +1,6 @@
 {
   "name": "fis3-deploy-i18n-ejs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A fis3 plugin to generate html from i18n language file and template file.",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "ejs": "^2.3.4",
     "extend": "^3.0.0",
     "fs": "0.0.2",
+    "lodash": "^4.17.4",
     "walk": "^2.3.9"
   }
 }
