@@ -174,8 +174,4 @@ sftp-config.json
 .sass-cache
 *.css.map
 
-### Yarn ###
-yarn.*
-.yarn*
-
 ### project
