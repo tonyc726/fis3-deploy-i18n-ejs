@@ -1,4 +1,32 @@
 language: node_js
+cache:
+  yarn: true
+  directories:
+  - node_modules
 node_js:
-  - "6.9"
-  - "4.6"
+- '8'
+- '7'
+- '6'
+branches:
+  only:
+  - master
+before_install:
+- curl -o- -L https://yarnpkg.com/install.sh | bash
+- export PATH="$HOME/.yarn/bin:$PATH"
+script:
+- yarn run lint
+- yarn run test
+- yarn run build
+after_success:
+- yarn run release
+env:
+  global:
+    secure: pm9qujGgHsYQ5X6FH6nwNOrK3d0Xr1m1G8ZstI/0p0sTy0sWWjUBh30tTGTWBiV6HXnjmLM6N0A3VzaGkYt+31pPDaQ4TSrxZUAzVHgnAFz/Th+oNgtYOrTtBvLM6EmmkAEaOXhMWkC9SGOF3PmjYkulLQSOIh5EPu5uq16HgFK3HsVJg/sEeNS2i5boGiClmvSQoxp541bgIdhOFleA7lrYgevW+RFig8Lpuf2juPq7ybKBkSvNExxqbz57TeEng+Pkaelfbi6U1NgGVczO2VVs4eU3YSXuZQMDGYINPFckeCMHc4qrvlq7JkifXbMZOZsV7g4FAJelKJ9IGvMZso5XSZd1rp2WlT8JTBHpg1oZyyNOaxv7EjuRnUgYuV5tjFwPUNddNA3L1Re1Wsf5BAWnP/J7wf50qBIu9e1oXGRaJgErOkW2vCgMDBWyf1IhbH5RPCgSJI2xbn1jpCq8cJBCu41g5NUVkCsKRyA7m+s/19i/fvEkfnXcY7ER63KgGaEuuWWetA0Sl7uQKcKElH+fM8zoobSB3RnEUuxbdL0tHfcDTwEF8RGI8WmyK4dRVj0vhX0O+bRa9PZ+reN0RyAq7S0hf/DcS80v1qEeiTbcT9btaBnZy38BnpmQT31R0kUI+NKX1P/bGpqGftdMWASMZFWCoIAkH39GRxdW99E=
+deploy:
+  provider: npm
+  email: zhujf620@gmail.com
+  api_key:
+    secure: Q+9oGubTP0fBFuMCvrFBNQ1bn3yWF20Yt/3Oe2I+Qf2LB1+XssKRfDxfTiprFHC4L38uUYetlB2KpdbMYdtD6/KsZfNNRw+jFqZGyOSsEKjojgQqZzuUY9nN6DlT14eQwgsbyPohecyI3ivGu8M5QPEYYmXmEg3eb9E6ho2RMYE3RXtZ8g692hjgKsD13DM/WVW6EzhIjYXJ6EogCK3QdtrxfFdeuJGF8MqZp52PyoAZiMGVP6ko4wo+jKaE5zyXBwDNgucutHwqCB1vXXFhaqs1pZ9qcXi1C8aQDBMudjnfivfMQ155rviR6yok4b8v5Hbbb424HkQwYw6aZP3DTF+b8xCdISHZpgX8b5pE3oLGHQrL04LPJhzXqBP/zEx+Uz2KbH+DSUsq2F6VKyOic+1cSqTniXxCuruJDdbmaDdr3N93Z2vLFJ4mUPXEB7MltsfZrs4W8O++9px57lKfvbHqO1dlzI4zpIdUDERQ+pHDRJfsGJPO9HxJBBcSzhujd0uhlnjZtnrokvvJgRdYkuU/csl01X3mksmiyXmonG2q44uO31mJJOvTPHK0a6F90t1lADmbiK0LMGHZHwbafcWs1vStuNzD7rsimKvqNkvsgrWR4AdztdFQmdPgianS/Sb9/N5+NV5RTbP22LBZf4R5piyjqpnjwDQtvzi3C20=
+  on:
+    tags: true
+    repo: tonyc726/fis3-deploy-i18n-ejs
