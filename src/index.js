@@ -9,7 +9,7 @@
 import path from 'path';
 import walk from 'walk';
 import ejs from 'ejs';
-import { merge, isFunction, noop, forEach, cloneDeep } from 'lodash';
+import { merge, isFunction, noop, forEach } from 'lodash';
 
 import converArrayStringToPropsObject from './utils/converArrayStringToPropsObject';
 import matchByGlob from './utils/matchByGlob';
@@ -132,11 +132,13 @@ export default (options, modified, total, fisDeployNextEvent) => {
     'end',
     () => {
       // ejs compile config
-      const ejsCompileOptions = {
+      const ejsCompilerOptions = {
         open: config.open,
         close: config.close,
       };
-      const defaultLangNameRegExp = !config.default ? null : (new RegExp(`${config.default}`, 'gi'));
+      const defaultLangNameRegExp = defaultLangName === null ? null : (new RegExp(`${defaultLangName}`, 'gi'));
+      const ejsCompilerResult = [];
+      const needRemoveIndexs = [];
 
       /**
        * @see http://fis.baidu.com/fis3/api/fis.file-File.html
@@ -165,38 +167,52 @@ export default (options, modified, total, fisDeployNextEvent) => {
        *   "release": "/fileParentDirPath/fileName.fileExt",
        * }...]
        */
-      cloneDeep(modified).forEach((modifiedFile) => {
+      modified.forEach((modifiedFile, modifiedFileIndex) => {
         if (
           modifiedFile.release !== false &&
           modifiedFile.isHtmlLike &&
           // 如果没有有过滤的正则，或者不符合过滤条件则进行i18n处理
           !matchByGlob(modifiedFile.subpath, config.ignoreMatch)
         ) {
-          const fileCompiler = ejs(modifiedFile, ejsCompileOptions);
+          const fileCompiler = ejs.compile(modifiedFile.getContent(), ejsCompilerOptions);
           const distFilePath = matchByGlob(modifiedFile.subpath, config.notKeepOriginSubPathMatch) ?
             modifiedFile.basename :
-            modifiedFile.subdirname;
+            modifiedFile.release;
 
           forEach(i18nData, (langData, langName) => {
             const distPath = config.dist
-              .replace('$lang', (
+              .replace(/^\//, '')
+              .replace(/\/$/, '')
+              .replace('$lang/', (
                 (
                   // 如果没有默认语言或者不匹配默认语言，
                   // 则在文件输出路劲最外层加入`$lang/`的层级
                   defaultLangNameRegExp === null ||
                   !defaultLangNameRegExp.test(langName)
-                ) ? langName : ''
+                ) ? `${langName}/` : ''
               ))
-              .replace('$file', distFilePath);
+              .replace('$file', distFilePath.replace(/^\//, ''));
             // eslint-disable-next-line no-undef
             const distFile = fis.file(fis.project.getProjectPath(), distPath);
             distFile.setContent(fileCompiler(i18nData[langName]));
 
-            // add to deploy file array
-            modified.push(distFile);
+            // save compiled result
+            ejsCompilerResult.push(distFile);
+            needRemoveIndexs.push(modifiedFileIndex);
           });
         }
       });
+
+      if (ejsCompilerResult && ejsCompilerResult.length !== 0) {
+        forEach(needRemoveIndexs, (removeIndex, i) => {
+          modified.splice(removeIndex - i, 1);
+        });
+
+        ejsCompilerResult.forEach((newModifiedFile) => {
+          // 增加至 modified，用于deploy
+          modified.push(newModifiedFile);
+        });
+      }
 
       // 由于是异步的如果后续还需要执行必须调用 fisDeployNextEvent
       fisDeployNextEvent();

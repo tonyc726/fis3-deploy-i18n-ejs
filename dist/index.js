@@ -16,10 +16,6 @@ var _extends2 = require('babel-runtime/helpers/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
 
-var _cloneDeep2 = require('lodash/cloneDeep');
-
-var _cloneDeep3 = _interopRequireDefault(_cloneDeep2);
-
 var _forEach2 = require('lodash/forEach');
 
 var _forEach3 = _interopRequireDefault(_forEach2);
@@ -73,7 +69,7 @@ var DEFAULT_CONFIG = {
 exports.default = function (options, modified, total, fisDeployNextEvent) {
   var config = (0, _merge4.default)(DEFAULT_CONFIG, options);
 
-  var i18nResourcePath = _path2.default.join(fis.project.getProjectPath(), config.i18n);
+  var i18nResourcePath = _path2.default.join(fis.project.getProjectPath(), config.i18nDir);
   var langFilesWalker = _walk2.default.walk(i18nResourcePath, {
     followLinks: false,
 
@@ -109,28 +105,43 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
   });
 
   langFilesWalker.on('end', function () {
-    var ejsCompileOptions = {
+    var ejsCompilerOptions = {
       open: config.open,
       close: config.close
     };
-    var defaultLangNameRegExp = !config.default ? null : new RegExp('' + config.default, 'gi');
+    var defaultLangNameRegExp = defaultLangName === null ? null : new RegExp('' + defaultLangName, 'gi');
+    var ejsCompilerResult = [];
+    var needRemoveIndexs = [];
 
-    (0, _cloneDeep3.default)(modified).forEach(function (modifiedFile) {
+    modified.forEach(function (modifiedFile, modifiedFileIndex) {
       if (modifiedFile.release !== false && modifiedFile.isHtmlLike && !(0, _matchByGlob2.default)(modifiedFile.subpath, config.ignoreMatch)) {
-        var fileCompiler = (0, _ejs2.default)(modifiedFile, ejsCompileOptions);
-        var distFilePath = (0, _matchByGlob2.default)(modifiedFile.subpath, config.notKeepOriginSubPathMatch) ? modifiedFile.basename : modifiedFile.subdirname;
+        var fileCompiler = _ejs2.default.compile(modifiedFile.getContent(), ejsCompilerOptions);
+        var distFilePath = (0, _matchByGlob2.default)(modifiedFile.subpath, config.notKeepOriginSubPathMatch) ? modifiedFile.basename : modifiedFile.release;
 
         (0, _forEach3.default)(i18nData, function (langData, langName) {
-          var distPath = config.dist.replace('$lang', defaultLangNameRegExp === null || !defaultLangNameRegExp.test(langName) ? langName : '').replace('$file', distFilePath);
+          var distPath = config.dist.replace(/^\//, '').replace(/\/$/, '').replace('$lang/', defaultLangNameRegExp === null || !defaultLangNameRegExp.test(langName) ? langName + '/' : '').replace('$file', distFilePath.replace(/^\//, ''));
 
           var distFile = fis.file(fis.project.getProjectPath(), distPath);
           distFile.setContent(fileCompiler(i18nData[langName]));
 
-          modified.push(distFile);
+          ejsCompilerResult.push(distFile);
+          needRemoveIndexs.push(modifiedFileIndex);
         });
       }
     });
 
+    if (ejsCompilerResult && ejsCompilerResult.length !== 0) {
+      (0, _forEach3.default)(needRemoveIndexs, function (removeIndex, i) {
+        modified.splice(removeIndex - i, 1);
+      });
+
+      ejsCompilerResult.forEach(function (newModifiedFile) {
+        modified.push(newModifiedFile);
+      });
+    }
+
     fisDeployNextEvent();
   });
 };
+
+module.exports = exports['default'];

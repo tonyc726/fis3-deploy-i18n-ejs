@@ -17,3 +17,5 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = function (str, match) {
   return (0, _isString3.default)(match) && match.length !== 0 && (0, _isString3.default)(str) ? (0, _minimatch2.default)(str, match, {}) : false;
 };
+
+module.exports = exports['default'];

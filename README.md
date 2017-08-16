@@ -5,7 +5,7 @@
 
 > Thanks for [fis3-deploy-i18n-template](https://github.com/foio/fis3-deploy-i18n-template)
 
-在前端的工程构建工具[FIS3](http://fis.baidu.com/)发布阶段，替换多语言标记，生成指定文件的插件。
+在前端的工程构建工具[FIS3](http://fis.baidu.com/)发布阶段，将所有拥有`isHtmlLike: true`的文件包含的多语言标记替换成指定内容，并生成文件的插件。
 
 ## 使用说明
 ### 如何安装
