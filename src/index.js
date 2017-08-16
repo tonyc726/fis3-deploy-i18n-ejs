@@ -59,7 +59,7 @@ const DEFAULT_CONFIG = {
 export default (options, modified, total, fisDeployNextEvent) => {
   const config = merge(DEFAULT_CONFIG, options);
   // eslint-disable-next-line no-undef
-  const i18nResourcePath = path.join(fis.project.getProjectPath(), config.i18n);
+  const i18nResourcePath = path.join(fis.project.getProjectPath(), config.i18nDir);
   const langFilesWalker = walk.walk(i18nResourcePath, {
     followLinks: false,
     // directories with these keys will be skipped
