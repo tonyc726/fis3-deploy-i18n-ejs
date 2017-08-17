@@ -22,7 +22,7 @@ Next set your `fis-config.js`.
  * @property {string} [open='<%'] - ejs模板的起始标识符
  * @property {string} [close='%>'] - ejs模板的结束标识符
  * @property {string} [i18nDir='translations'] - 多语言文件目录，相对于项目根目录的路径
- * @property {string} [dist='i18n/$lang/$file] - 编译后的输出路径，相对于release的根目录，其中`$lang`代表语言文件夹，`$file`代表编译的文件
+ * @property {string} [dist='i18n/$lang/$file'] - 编译后的输出路径，相对于release的根目录，其中`$lang`代表语言文件夹，`$file`代表编译的文件
  * @property {string} [defaultLangName=''] - 默认语言名字，用户控制输出的目录结构
  * @property {string} [ignoreMatch=''] - 需要忽略编译的glob规则
  * @property {string} [notKeepOriginSubPathMatch=''] - 不需要保持原有目录结构输出的glob规则
@@ -51,7 +51,7 @@ Next set your `fis-config.js`.
 ```
 
 ## 参考示例
-> V0.2.* 以上版本，升级了`i18nDir`配置项的规则，可以根据`i18n-directory`目录结构生成对应层级的JSON。
+> 具体的实验可以参考这个项目[fis3-deploy-i18n-ejs-examples](https://github.com/tonyc726/fis3-deploy-i18n-ejs-examples)。
 
 ### 项目目录结构
 ```
