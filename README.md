@@ -180,4 +180,4 @@ Copyright © 2017-present. This source code is licensed under the MIT license fo
 [LICENSE](https://github.com/tonyc726/fis3-deploy-i18n-ejs/blob/master/LICENSE) file.
 
 ---
-Made with 🐯 by Tony ([blog](https://itony.net))
+Made by Tony ([blog](https://itony.net))

@@ -125,8 +125,9 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
           distFile.setContent(fileCompiler(i18nData[langName]));
 
           ejsCompilerResult.push(distFile);
-          needRemoveIndexs.push(modifiedFileIndex);
         });
+
+        needRemoveIndexs.push(modifiedFileIndex);
       }
     });
 
