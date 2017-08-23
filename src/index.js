@@ -198,8 +198,10 @@ export default (options, modified, total, fisDeployNextEvent) => {
 
             // save compiled result
             ejsCompilerResult.push(distFile);
-            needRemoveIndexs.push(modifiedFileIndex);
           });
+
+          // save the remove index
+          needRemoveIndexs.push(modifiedFileIndex);
         }
       });
 
