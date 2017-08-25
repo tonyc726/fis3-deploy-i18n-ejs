@@ -6,33 +6,33 @@
  * Author: tonyc726@gmail.com
  */
 
-import path from 'path';
-import walk from 'walk';
 import ejs from 'ejs';
-import { merge, isFunction, noop, forEach } from 'lodash';
+import isGlob from 'is-glob';
+import { merge, isString, noop, forEach, isEmpty } from 'lodash';
 
-import converArrayStringToPropsObject from './utils/converArrayStringToPropsObject';
-import matchByGlob from './utils/matchByGlob';
+import compileFileToI18nData from './utils/compileFileToI18nData';
 
 /**
  * @type {Object} DEFAULT_CONFIG - 插件默认配置
  * @property {string} [open='<%'] - ejs模板的起始标识符
  * @property {string} [close='%>'] - ejs模板的结束标识符
- * @property {string} [i18nDir='translations'] - 多语言文件目录，相对于项目根目录的路径
- * @property {string} [dist='i18n/$lang/$file] - 编译后的输出路径，相对于release的根目录，其中`$lang`代表语言文件夹，`$file`代表编译的文件
- * @property {string} [defaultLangName=''] - 默认语言名字，用户控制输出的目录结构
- * @property {string} [ignoreMatch=''] - 需要忽略编译的glob规则
- * @property {string} [notKeepOriginSubPathMatch=''] - 不需要保持原有目录结构输出的glob规则
+ * @property {string} [dist='i18n/$lang/$file'] - 编译后的输出路径，相对于release的根目录，其中`$lang`代表语言文件夹，`$file`代表编译的文件
+ * @property {string} [templatePattern='**.html'] - 需要做多语言处理文件subpath的glob规则，默认为所有html文件
+ * @property {string} [defaultLangName=''] - 默认语言名字，如果匹配默认语言，该语言的输出将自动去除dist中的`$lang`部分
+ * @property {string} [i18nPattern='translations/*.{js,json}'] - 多语言文件的glob规则
+ * @property {string} [ignorePattern=''] - 需要忽略编译的glob规则
+ * @property {string} [noKeepSubPathPattern=''] - 不需要保持原有目录结构输出的glob规则
  * @property {function} [onLangFileParse=noop] - 在读取多语言文件后的自定义处理函数，其返回值会与当前读取的文件内容合并
  */
 const DEFAULT_CONFIG = {
   open: '<%',
   close: '%>',
-  i18nDir: 'translations',
   dist: 'i18n/$lang/$file',
+  templatePattern: '**.html',
   defaultLangName: '',
-  ignoreMatch: '',
-  notKeepOriginSubPathMatch: '',
+  i18nPattern: 'translations/*.{js,json}',
+  ignorePattern: '',
+  noKeepSubPathPattern: '',
   /**
    * @desc 多语言文件处理函数
    * @param {string} i18nFileJSONClone - 语言文件内容(JSON格式)的拷贝对象
@@ -58,79 +58,35 @@ const DEFAULT_CONFIG = {
  */
 export default (options, modified, total, fisDeployNextEvent) => {
   const config = merge(DEFAULT_CONFIG, options);
-  // eslint-disable-next-line no-undef
-  const i18nResourcePath = path.join(fis.project.getProjectPath(), config.i18nDir);
-  const langFilesWalker = walk.walk(i18nResourcePath, {
-    followLinks: false,
-    // directories with these keys will be skipped
-    filters: ['.DS_Store'],
-  });
-
-  const i18nData = {};
   const defaultLangName = config.defaultLangName || null;
 
-  langFilesWalker.on(
-    'file',
-    /**
-     * @see https://www.npmjs.com/package/walk#api
-     *
-     * @param {string} root - the containing the files to be inspected
-     * @param {object | array} stats - a single stats object or an array with some added attributes
-     * @param {string} stats.type - 'file', 'directory', etc
-     * @param {string} stats.name - the name of the file, dir, etc
-     * @param {string} stats.error
-     * @param {function} next - no more files will be read until this is called
-     */
-    (root, stats, nextWalkEvent) => {
-      const langName = stats.name ? stats.name.replace(/\.(json|js)$/, '') : '';
-      if (!langName || langName.length === 0) {
-        // eslint-disable-next-line no-undef
-        fis.log.error(`i18n(${stats.name}) fileName is error.`);
-        nextWalkEvent();
-      }
-
-      // @see http://fis.baidu.com/fis3/api/fis.util.html#.readJson
+  // 首先检测必须的参数
+  // 参数有误则报错，并进入下一个fis的事件中
+  if (
+    !isGlob(config.i18nPattern) ||
+    !isString(config.dist) ||
+    config.dist.indexOf('$lang') < 0 ||
+    config.dist.indexOf('$file') < 0
+  ) {
+    // eslint-disable-next-line no-undef
+    fis.log.warn('fis3-deploy-i18n-ejs: wrong configurations.');
+    fisDeployNextEvent();
+  } else {
+    // 根据i18nPattern读取文件并编译成i18nData
+    const i18nData = compileFileToI18nData(
+      config.i18nPattern,
       // eslint-disable-next-line no-undef
-      const fileJSON = fis.util.readJSON(path.join(root, stats.name));
+      fis.getProjectPath(),
+      defaultLangName,
+      config.onLangFileParse
+    );
 
-      if (isFunction(config.onLangFileParse)) {
-        merge(fileJSON, config.onLangFileParse({ ...fileJSON }, defaultLangName, langName));
-      }
-
-      // 合并
-      merge(
-        i18nData,
-        {
-          [langName]: converArrayStringToPropsObject(
-            // langPropsPathArray - 将path转换为Array形式，用于转换为多层级的PlainObject格式
-            root.replace(i18nResourcePath, '')
-              .replace(/^\//, '')
-              .replace(/\/$/, '')
-              .split('/')
-              .filter((propPath) => (
-                propPath && propPath.length !== 0
-              )),
-            fileJSON
-          ),
-        }
-      );
-      nextWalkEvent();
-    }
-  );
-
-  langFilesWalker.on(
-    'error',
-    (root, stats) => {
+    // 如果为找到多语言文件，输出报错信息，自动进入下一个fis的事件中
+    if (isEmpty(i18nData)) {
       // eslint-disable-next-line no-undef
-      fis.log.error('Walker is error');
-      // eslint-disable-next-line no-undef
-      fis.log.error(JSON.stringify(stats, null, 2));
-    }
-  );
-
-  langFilesWalker.on(
-    'end',
-    () => {
+      fis.log.warn('fis3-deploy-i18n-ejs: can\'t found i18n files.');
+      fisDeployNextEvent();
+    } else {
       // ejs compile config
       const ejsCompilerOptions = {
         open: config.open,
@@ -167,15 +123,20 @@ export default (options, modified, total, fisDeployNextEvent) => {
        *   "release": "/fileParentDirPath/fileName.fileExt",
        * }...]
        */
-      modified.forEach((modifiedFile, modifiedFileIndex) => {
+      forEach(modified, (modifiedFile, modifiedFileIndex) => {
         if (
-          modifiedFile.release !== false &&
-          modifiedFile.isHtmlLike &&
-          // 如果没有有过滤的正则，或者不符合过滤条件则进行i18n处理
-          !matchByGlob(modifiedFile.subpath, config.ignoreMatch)
+          modifiedFile.release &&
+          (
+            // 如果没有过滤的正则，则依据`isHtmlLike`来鉴别
+            (!isGlob(config.templatePattern)) ?
+              modifiedFile.isHtmlLike :
+              // eslint-disable-next-line no-undef
+              fis.util.glob(config.templatePattern, modifiedFile.subpath)
+          )
         ) {
           const fileCompiler = ejs.compile(modifiedFile.getContent(), ejsCompilerOptions);
-          const distFilePath = matchByGlob(modifiedFile.subpath, config.notKeepOriginSubPathMatch) ?
+          // eslint-disable-next-line no-undef
+          const distFilePath = fis.util.glob(modifiedFile.subpath, config.noKeepSubPathPattern) ?
             modifiedFile.basename :
             modifiedFile.release;
 
@@ -210,7 +171,7 @@ export default (options, modified, total, fisDeployNextEvent) => {
           modified.splice(removeIndex - i, 1);
         });
 
-        ejsCompilerResult.forEach((newModifiedFile) => {
+        forEach(ejsCompilerResult, (newModifiedFile) => {
           // 增加至 modified，用于deploy
           modified.push(newModifiedFile);
         });
@@ -219,5 +180,5 @@ export default (options, modified, total, fisDeployNextEvent) => {
       // 由于是异步的如果后续还需要执行必须调用 fisDeployNextEvent
       fisDeployNextEvent();
     }
-  );
+  }
 };
