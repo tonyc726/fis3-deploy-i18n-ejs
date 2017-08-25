@@ -17,7 +17,7 @@ import compileFileToI18nData from './utils/compileFileToI18nData';
  * @property {string} [open='<%'] - ejs模板的起始标识符
  * @property {string} [close='%>'] - ejs模板的结束标识符
  * @property {string} [dist='i18n/$lang/$file'] - 编译后的输出路径，相对于release的根目录，其中`$lang`代表语言文件夹，`$file`代表编译的文件
- * @property {string} [templatePattern='**.html'] - 需要做多语言处理文件subpath的glob规则，默认为所有html文件
+ * @property {string} [templatePattern=''] - 需要做多语言处理文件subpath的glob规则，默认为所有html文件
  * @property {string} [defaultLangName=''] - 默认语言名字，如果匹配默认语言，该语言的输出将自动去除dist中的`$lang`部分
  * @property {string} [i18nPattern='translations/*.{js,json}'] - 多语言文件的glob规则
  * @property {string} [ignorePattern=''] - 需要忽略编译的glob规则
@@ -28,7 +28,7 @@ const DEFAULT_CONFIG = {
   open: '<%',
   close: '%>',
   dist: 'i18n/$lang/$file',
-  templatePattern: '**.html',
+  templatePattern: '',
   defaultLangName: '',
   i18nPattern: 'translations/*.{js,json}',
   ignorePattern: '',
@@ -76,7 +76,7 @@ export default (options, modified, total, fisDeployNextEvent) => {
     const i18nData = compileFileToI18nData(
       config.i18nPattern,
       // eslint-disable-next-line no-undef
-      fis.getProjectPath(),
+      fis.project.getProjectPath(),
       defaultLangName,
       config.onLangFileParse
     );
@@ -136,7 +136,7 @@ export default (options, modified, total, fisDeployNextEvent) => {
         ) {
           const fileCompiler = ejs.compile(modifiedFile.getContent(), ejsCompilerOptions);
           // eslint-disable-next-line no-undef
-          const distFilePath = fis.util.glob(modifiedFile.subpath, config.noKeepSubPathPattern) ?
+          const distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ?
             modifiedFile.basename :
             modifiedFile.release;
 
