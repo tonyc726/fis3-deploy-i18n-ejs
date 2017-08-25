@@ -42,7 +42,7 @@ var DEFAULT_CONFIG = {
   open: '<%',
   close: '%>',
   dist: 'i18n/$lang/$file',
-  pattern: '**.html',
+  templatePattern: '',
   defaultLangName: '',
   i18nPattern: 'translations/*.{js,json}',
   ignorePattern: '',
@@ -59,7 +59,7 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
     fis.log.warn('fis3-deploy-i18n-ejs: wrong configurations.');
     fisDeployNextEvent();
   } else {
-    var i18nData = (0, _compileFileToI18nData2.default)(config.i18nPattern, fis.getProjectPath(), defaultLangName, config.onLangFileParse);
+    var i18nData = (0, _compileFileToI18nData2.default)(config.i18nPattern, fis.project.getProjectPath(), defaultLangName, config.onLangFileParse);
 
     if ((0, _isEmpty3.default)(i18nData)) {
       fis.log.warn('fis3-deploy-i18n-ejs: can\'t found i18n files.');
@@ -74,10 +74,10 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
       var needRemoveIndexs = [];
 
       (0, _forEach3.default)(modified, function (modifiedFile, modifiedFileIndex) {
-        if (modifiedFile.release && (!(0, _isGlob2.default)(config.pattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.pattern, modifiedFile.subpath))) {
+        if (modifiedFile.release && (!(0, _isGlob2.default)(config.templatePattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.templatePattern, modifiedFile.subpath))) {
           var fileCompiler = _ejs2.default.compile(modifiedFile.getContent(), ejsCompilerOptions);
 
-          var distFilePath = fis.util.glob(modifiedFile.subpath, config.noKeepSubPathPattern) ? modifiedFile.basename : modifiedFile.release;
+          var distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ? modifiedFile.basename : modifiedFile.release;
 
           (0, _forEach3.default)(i18nData, function (langData, langName) {
             var distPath = config.dist.replace(/^\//, '').replace(/\/$/, '').replace('$lang/', defaultLangNameRegExp === null || !defaultLangNameRegExp.test(langName) ? langName + '/' : '').replace('$file', distFilePath.replace(/^\//, ''));
