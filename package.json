@@ -1,7 +1,7 @@
 {
   "name": "fis3-deploy-i18n-ejs",
   "version": "0.0.0-semantic-release",
-  "description": "A fis3 plugin to generate html from i18n language file and template file.",
+  "description": "A fis3 plugin to generate intl file with i18n language file and template file on deploy stage.",
   "repository": {
     "type": "git",
     "url": "https://github.com/tonyc726/fis3-deploy-i18n-ejs"
@@ -25,7 +25,7 @@
   "jsnext:main": "src/index.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "babel --copy-files --out-dir dist --ignore *.test.js src",
+    "build": "babel --copy-files --out-dir dist --ignore **/__mock__,*.test.js src",
     "lint": "eslint ./src",
     "test": "cross-env NODE_ENV=test jest ./src",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
