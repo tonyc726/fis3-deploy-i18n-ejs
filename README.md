@@ -55,7 +55,7 @@ npm install fis3-deploy-i18n-ejs -D
 ```
 
 ## 参考示例
-> 具体的实验可以参考这个项目[fis3-deploy-i18n-ejs-examples](https://github.com/tonyc726/fis3-deploy-i18n-ejs-examples)。
+> 具体的实验可以参考这个项目[fis3-examples](https://github.com/tonyc726/fis3-examples)。
 
 ### 项目目录结构
 ```
