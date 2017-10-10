@@ -2,7 +2,14 @@ import path from 'path';
 import fs from 'fs';
 import glob from 'glob';
 import isGlob from 'is-glob';
-import { merge, isPlainObject, isEmpty, isFunction, cloneDeep, forEach } from 'lodash';
+import {
+  merge,
+  isPlainObject,
+  isEmpty,
+  isFunction,
+  cloneDeep,
+  forEach,
+} from 'lodash';
 
 /**
  * 根据glob遍历i18n资源文件生成i18n数据对象
@@ -22,9 +29,7 @@ export default (
   onFileParse,
   init,
 ) => {
-  const result = (
-    isPlainObject(init) && !isEmpty(init)
-  ) ? cloneDeep(init) : {};
+  const result = isPlainObject(init) && !isEmpty(init) ? cloneDeep(init) : {};
 
   // @see https://github.com/micromatch/is-glob
   if (isGlob(pattern)) {
@@ -41,21 +46,18 @@ export default (
       try {
         fileJSON = JSON.parse(fs.readFileSync(fileAbsolutePath, 'utf8'));
       } catch (err) {
-        console.info('Plugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error: ');
-        console.error(err);
+        console.error(`
+Plugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error:
+${err}
+        `);
       }
 
-      merge(
-        result,
-        {
-          [fileName]: (
-            // 如果存在语言处理函数，则使用处理后的结果
-            !isFunction(onFileParse) ?
-              fileJSON :
-              onFileParse(fileJSON, defaultLangName, fileName)
-          ),
-        }
-      );
+      merge(result, {
+        // 如果存在语言处理函数，则使用处理后的结果
+        [fileName]: !isFunction(onFileParse)
+          ? fileJSON
+          : onFileParse(fileJSON, defaultLangName, fileName),
+      });
     });
   }
 

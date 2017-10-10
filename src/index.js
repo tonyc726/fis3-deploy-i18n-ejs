@@ -78,13 +78,13 @@ export default (options, modified, total, fisDeployNextEvent) => {
       // eslint-disable-next-line no-undef
       fis.project.getProjectPath(),
       defaultLangName,
-      config.onLangFileParse
+      config.onLangFileParse,
     );
 
     // 如果为找到多语言文件，输出报错信息，自动进入下一个fis的事件中
     if (isEmpty(i18nData)) {
       // eslint-disable-next-line no-undef
-      fis.log.warn('fis3-deploy-i18n-ejs: can\'t found i18n files.');
+      fis.log.warn("fis3-deploy-i18n-ejs: can't found i18n files.");
       fisDeployNextEvent();
     } else {
       // ejs compile config
@@ -92,7 +92,10 @@ export default (options, modified, total, fisDeployNextEvent) => {
         open: config.open,
         close: config.close,
       };
-      const defaultLangNameRegExp = defaultLangName === null ? null : (new RegExp(`${defaultLangName}`, 'gi'));
+      const defaultLangNameRegExp =
+        defaultLangName === null
+          ? null
+          : new RegExp(`${defaultLangName}`, 'gi');
       const ejsCompilerResult = [];
       const needRemoveIndexs = [];
 
@@ -126,38 +129,41 @@ export default (options, modified, total, fisDeployNextEvent) => {
       forEach(modified, (modifiedFile, modifiedFileIndex) => {
         if (
           modifiedFile.release &&
-          (
-            // 如果没有过滤的正则，则依据`isHtmlLike`来鉴别
-            (!isGlob(config.templatePattern)) ?
-              modifiedFile.isHtmlLike :
-              // eslint-disable-next-line no-undef
-              fis.util.glob(config.templatePattern, modifiedFile.subpath)
-          ) &&
-          (
-            !config.ignorePattern ||
+          // 如果没有过滤的正则，则依据`isHtmlLike`来鉴别
+          (!isGlob(config.templatePattern)
+            ? modifiedFile.isHtmlLike
+            // eslint-disable-next-line no-undef
+            : fis.util.glob(config.templatePattern, modifiedFile.subpath)) &&
+          (!config.ignorePattern ||
             !isGlob(config.ignorePattern) ||
             // eslint-disable-next-line no-undef
-            !fis.util.glob(config.ignorePattern, modifiedFile.subpath)
-          )
+            !fis.util.glob(config.ignorePattern, modifiedFile.subpath))
         ) {
-          const fileCompiler = ejs.compile(modifiedFile.getContent(), ejsCompilerOptions);
+          const fileCompiler = ejs.compile(
+            modifiedFile.getContent(),
+            ejsCompilerOptions,
+          );
           // eslint-disable-next-line no-undef
-          const distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ?
-            modifiedFile.basename :
-            modifiedFile.release;
+          const distFilePath = fis.util.glob(
+            config.noKeepSubPathPattern,
+            modifiedFile.subpath,
+          )
+            ? modifiedFile.basename
+            : modifiedFile.release;
 
           forEach(i18nData, (langData, langName) => {
             const distPath = config.dist
               .replace(/^\//, '')
               .replace(/\/$/, '')
-              .replace('$lang/', (
-                (
-                  // 如果没有默认语言或者不匹配默认语言，
-                  // 则在文件输出路劲最外层加入`$lang/`的层级
-                  defaultLangNameRegExp === null ||
-                  !defaultLangNameRegExp.test(langName)
-                ) ? `${langName}/` : ''
-              ))
+              .replace(
+                '$lang/',
+                // 如果没有默认语言或者不匹配默认语言，
+                // 则在文件输出路劲最外层加入`$lang/`的层级
+                defaultLangNameRegExp === null ||
+                !defaultLangNameRegExp.test(langName)
+                  ? `${langName}/`
+                  : '',
+              )
               .replace('$file', distFilePath.replace(/^\//, ''));
             // eslint-disable-next-line no-undef
             const distFile = fis.file(fis.project.getProjectPath(), distPath);
