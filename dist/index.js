@@ -62,7 +62,7 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
     var i18nData = (0, _compileFileToI18nData2.default)(config.i18nPattern, fis.project.getProjectPath(), defaultLangName, config.onLangFileParse);
 
     if ((0, _isEmpty3.default)(i18nData)) {
-      fis.log.warn('fis3-deploy-i18n-ejs: can\'t found i18n files.');
+      fis.log.warn("fis3-deploy-i18n-ejs: can't found i18n files.");
       fisDeployNextEvent();
     } else {
       var ejsCompilerOptions = {
@@ -74,7 +74,7 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
       var needRemoveIndexs = [];
 
       (0, _forEach3.default)(modified, function (modifiedFile, modifiedFileIndex) {
-        if (modifiedFile.release && (!(0, _isGlob2.default)(config.templatePattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.templatePattern, modifiedFile.subpath))) {
+        if (modifiedFile.release && (!(0, _isGlob2.default)(config.templatePattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.templatePattern, modifiedFile.subpath)) && (!config.ignorePattern || !(0, _isGlob2.default)(config.ignorePattern) || !fis.util.glob(config.ignorePattern, modifiedFile.subpath))) {
           var fileCompiler = _ejs2.default.compile(modifiedFile.getContent(), ejsCompilerOptions);
 
           var distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ? modifiedFile.basename : modifiedFile.release;

@@ -71,8 +71,7 @@ exports.default = function (pattern) {
       try {
         fileJSON = JSON.parse(_fs2.default.readFileSync(fileAbsolutePath, 'utf8'));
       } catch (err) {
-        console.info('Plugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error: ');
-        console.error(err);
+        console.error('\nPlugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error:\n' + err + '\n        ');
       }
 
       (0, _merge4.default)(result, (0, _defineProperty3.default)({}, fileName, !(0, _isFunction3.default)(onFileParse) ? fileJSON : onFileParse(fileJSON, defaultLangName, fileName)));
