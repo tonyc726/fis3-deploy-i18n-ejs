@@ -132,6 +132,12 @@ export default (options, modified, total, fisDeployNextEvent) => {
               modifiedFile.isHtmlLike :
               // eslint-disable-next-line no-undef
               fis.util.glob(config.templatePattern, modifiedFile.subpath)
+          ) &&
+          (
+            !config.ignorePattern ||
+            !isGlob(config.ignorePattern) ||
+            // eslint-disable-next-line no-undef
+            !fis.util.glob(config.ignorePattern, modifiedFile.subpath)
           )
         ) {
           const fileCompiler = ejs.compile(modifiedFile.getContent(), ejsCompilerOptions);
