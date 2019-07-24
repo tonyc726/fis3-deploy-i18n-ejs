@@ -78,7 +78,7 @@ export default (options, modified, total, fisDeployNextEvent) => {
       // eslint-disable-next-line no-undef
       fis.project.getProjectPath(),
       defaultLangName,
-      config.onLangFileParse,
+      config.onLangFileParse
     );
 
     // 如果为找到多语言文件，输出报错信息，自动进入下一个fis的事件中
@@ -132,8 +132,8 @@ export default (options, modified, total, fisDeployNextEvent) => {
           // 如果没有过滤的正则，则依据`isHtmlLike`来鉴别
           (!isGlob(config.templatePattern)
             ? modifiedFile.isHtmlLike
-            // eslint-disable-next-line no-undef
-            : fis.util.glob(config.templatePattern, modifiedFile.subpath)) &&
+            : // eslint-disable-next-line no-undef
+              fis.util.glob(config.templatePattern, modifiedFile.subpath)) &&
           (!config.ignorePattern ||
             !isGlob(config.ignorePattern) ||
             // eslint-disable-next-line no-undef
@@ -141,12 +141,12 @@ export default (options, modified, total, fisDeployNextEvent) => {
         ) {
           const fileCompiler = ejs.compile(
             modifiedFile.getContent(),
-            ejsCompilerOptions,
+            ejsCompilerOptions
           );
           // eslint-disable-next-line no-undef
           const distFilePath = fis.util.glob(
             config.noKeepSubPathPattern,
-            modifiedFile.subpath,
+            modifiedFile.subpath
           )
             ? modifiedFile.basename
             : modifiedFile.release;
@@ -160,9 +160,9 @@ export default (options, modified, total, fisDeployNextEvent) => {
                 // 如果没有默认语言或者不匹配默认语言，
                 // 则在文件输出路劲最外层加入`$lang/`的层级
                 defaultLangNameRegExp === null ||
-                !defaultLangNameRegExp.test(langName)
+                  !defaultLangNameRegExp.test(langName)
                   ? `${langName}/`
-                  : '',
+                  : ''
               )
               .replace('$file', distFilePath.replace(/^\//, ''));
             // eslint-disable-next-line no-undef
@@ -183,7 +183,7 @@ export default (options, modified, total, fisDeployNextEvent) => {
           modified.splice(removeIndex - i, 1);
         });
 
-        forEach(ejsCompilerResult, (newModifiedFile) => {
+        forEach(ejsCompilerResult, newModifiedFile => {
           // 增加至 modified，用于deploy
           modified.push(newModifiedFile);
         });

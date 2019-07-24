@@ -27,7 +27,7 @@ export default (
   cwd = process.cwd(),
   defaultLangName = '',
   onFileParse,
-  init,
+  init
 ) => {
   const result = isPlainObject(init) && !isEmpty(init) ? cloneDeep(init) : {};
 
@@ -38,7 +38,7 @@ export default (
     });
 
     // 根据文件名即语言名的数据规则，组合新的i18n数据
-    forEach(i18nFiles, (filePath) => {
+    forEach(i18nFiles, filePath => {
       const fileAbsolutePath = path.join(cwd, filePath);
       const filePathParse = path.parse(fileAbsolutePath);
       const fileName = filePathParse.name;

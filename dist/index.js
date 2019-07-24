@@ -1,44 +1,36 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, "__esModule", {
+var _interopRequireDefault = require("@babel/runtime-corejs3/helpers/interopRequireDefault");
+
+var _Object$defineProperty = require("@babel/runtime-corejs3/core-js-stable/object/define-property");
+
+_Object$defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _isEmpty2 = require('lodash/isEmpty');
+exports.default = void 0;
 
-var _isEmpty3 = _interopRequireDefault(_isEmpty2);
+var _splice = _interopRequireDefault(require("@babel/runtime-corejs3/core-js-stable/instance/splice"));
 
-var _forEach2 = require('lodash/forEach');
+var _indexOf = _interopRequireDefault(require("@babel/runtime-corejs3/core-js-stable/instance/index-of"));
 
-var _forEach3 = _interopRequireDefault(_forEach2);
+var _isEmpty2 = _interopRequireDefault(require("lodash/isEmpty"));
 
-var _noop2 = require('lodash/noop');
+var _forEach2 = _interopRequireDefault(require("lodash/forEach"));
 
-var _noop3 = _interopRequireDefault(_noop2);
+var _noop2 = _interopRequireDefault(require("lodash/noop"));
 
-var _isString2 = require('lodash/isString');
+var _isString2 = _interopRequireDefault(require("lodash/isString"));
 
-var _isString3 = _interopRequireDefault(_isString2);
+var _merge2 = _interopRequireDefault(require("lodash/merge"));
 
-var _merge2 = require('lodash/merge');
+var _ejs = _interopRequireDefault(require("ejs"));
 
-var _merge3 = _interopRequireDefault(_merge2);
+var _isGlob = _interopRequireDefault(require("is-glob"));
 
-var _ejs = require('ejs');
+var _compileFileToI18nData = _interopRequireDefault(require("./utils/compileFileToI18nData"));
 
-var _ejs2 = _interopRequireDefault(_ejs);
-
-var _isGlob = require('is-glob');
-
-var _isGlob2 = _interopRequireDefault(_isGlob);
-
-var _compileFileToI18nData = require('./utils/compileFileToI18nData');
-
-var _compileFileToI18nData2 = _interopRequireDefault(_compileFileToI18nData);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var DEFAULT_CONFIG = {
+const DEFAULT_CONFIG = {
   open: '<%',
   close: '%>',
   dist: 'i18n/$lang/$file',
@@ -47,57 +39,52 @@ var DEFAULT_CONFIG = {
   i18nPattern: 'translations/*.{js,json}',
   ignorePattern: '',
   noKeepSubPathPattern: '',
-
-  onLangFileParse: _noop3.default
+  onLangFileParse: _noop2.default
 };
 
-exports.default = function (options, modified, total, fisDeployNextEvent) {
-  var config = (0, _merge3.default)(DEFAULT_CONFIG, options);
-  var defaultLangName = config.defaultLangName || null;
+var _default = (options, modified, total, fisDeployNextEvent) => {
+  var _context, _context2;
 
-  if (!(0, _isGlob2.default)(config.i18nPattern) || !(0, _isString3.default)(config.dist) || config.dist.indexOf('$lang') < 0 || config.dist.indexOf('$file') < 0) {
+  const config = (0, _merge2.default)(DEFAULT_CONFIG, options);
+  const defaultLangName = config.defaultLangName || null;
+
+  if (!(0, _isGlob.default)(config.i18nPattern) || !(0, _isString2.default)(config.dist) || (0, _indexOf.default)(_context = config.dist).call(_context, '$lang') < 0 || (0, _indexOf.default)(_context2 = config.dist).call(_context2, '$file') < 0) {
     fis.log.warn('fis3-deploy-i18n-ejs: wrong configurations.');
     fisDeployNextEvent();
   } else {
-    var i18nData = (0, _compileFileToI18nData2.default)(config.i18nPattern, fis.project.getProjectPath(), defaultLangName, config.onLangFileParse);
+    const i18nData = (0, _compileFileToI18nData.default)(config.i18nPattern, fis.project.getProjectPath(), defaultLangName, config.onLangFileParse);
 
-    if ((0, _isEmpty3.default)(i18nData)) {
+    if ((0, _isEmpty2.default)(i18nData)) {
       fis.log.warn("fis3-deploy-i18n-ejs: can't found i18n files.");
       fisDeployNextEvent();
     } else {
-      var ejsCompilerOptions = {
+      const ejsCompilerOptions = {
         open: config.open,
         close: config.close
       };
-      var defaultLangNameRegExp = defaultLangName === null ? null : new RegExp('' + defaultLangName, 'gi');
-      var ejsCompilerResult = [];
-      var needRemoveIndexs = [];
+      const defaultLangNameRegExp = defaultLangName === null ? null : new RegExp(`${defaultLangName}`, 'gi');
+      const ejsCompilerResult = [];
+      const needRemoveIndexs = [];
+      (0, _forEach2.default)(modified, (modifiedFile, modifiedFileIndex) => {
+        if (modifiedFile.release && (!(0, _isGlob.default)(config.templatePattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.templatePattern, modifiedFile.subpath)) && (!config.ignorePattern || !(0, _isGlob.default)(config.ignorePattern) || !fis.util.glob(config.ignorePattern, modifiedFile.subpath))) {
+          const fileCompiler = _ejs.default.compile(modifiedFile.getContent(), ejsCompilerOptions);
 
-      (0, _forEach3.default)(modified, function (modifiedFile, modifiedFileIndex) {
-        if (modifiedFile.release && (!(0, _isGlob2.default)(config.templatePattern) ? modifiedFile.isHtmlLike : fis.util.glob(config.templatePattern, modifiedFile.subpath)) && (!config.ignorePattern || !(0, _isGlob2.default)(config.ignorePattern) || !fis.util.glob(config.ignorePattern, modifiedFile.subpath))) {
-          var fileCompiler = _ejs2.default.compile(modifiedFile.getContent(), ejsCompilerOptions);
-
-          var distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ? modifiedFile.basename : modifiedFile.release;
-
-          (0, _forEach3.default)(i18nData, function (langData, langName) {
-            var distPath = config.dist.replace(/^\//, '').replace(/\/$/, '').replace('$lang/', defaultLangNameRegExp === null || !defaultLangNameRegExp.test(langName) ? langName + '/' : '').replace('$file', distFilePath.replace(/^\//, ''));
-
-            var distFile = fis.file(fis.project.getProjectPath(), distPath);
+          const distFilePath = fis.util.glob(config.noKeepSubPathPattern, modifiedFile.subpath) ? modifiedFile.basename : modifiedFile.release;
+          (0, _forEach2.default)(i18nData, (langData, langName) => {
+            const distPath = config.dist.replace(/^\//, '').replace(/\/$/, '').replace('$lang/', defaultLangNameRegExp === null || !defaultLangNameRegExp.test(langName) ? `${langName}/` : '').replace('$file', distFilePath.replace(/^\//, ''));
+            const distFile = fis.file(fis.project.getProjectPath(), distPath);
             distFile.setContent(fileCompiler(i18nData[langName]));
-
             ejsCompilerResult.push(distFile);
           });
-
           needRemoveIndexs.push(modifiedFileIndex);
         }
       });
 
       if (ejsCompilerResult && ejsCompilerResult.length !== 0) {
-        (0, _forEach3.default)(needRemoveIndexs, function (removeIndex, i) {
-          modified.splice(removeIndex - i, 1);
+        (0, _forEach2.default)(needRemoveIndexs, (removeIndex, i) => {
+          (0, _splice.default)(modified).call(modified, removeIndex - i, 1);
         });
-
-        (0, _forEach3.default)(ejsCompilerResult, function (newModifiedFile) {
+        (0, _forEach2.default)(ejsCompilerResult, newModifiedFile => {
           modified.push(newModifiedFile);
         });
       }
@@ -107,4 +94,5 @@ exports.default = function (options, modified, total, fisDeployNextEvent) {
   }
 };
 
-module.exports = exports['default'];
+exports.default = _default;
+module.exports = exports.default;

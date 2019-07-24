@@ -11,111 +11,129 @@ const MOCK_DATA = {
 };
 
 test('default config', () => {
-  expect(compileFileToI18nData(
+  expect(
+    compileFileToI18nData()
     // pattern
     // cwd
     // defaultLangName
     // onFileParse
     // init
-  )).toEqual({});
+  ).toEqual({});
 });
 
 test('set pattern without glob rules', () => {
-  expect(compileFileToI18nData(
-    // pattern
-    '\\*.json'
-    // cwd
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toEqual({});
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '\\*.json'
+      // cwd
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toEqual({});
 });
 
 // @see https://github.com/prettier/prettier/issues/1358
 test('set pattern "{,!(node_modules)/**/}*.json", but without cwd', () => {
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.json',
-    // cwd
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toHaveProperty('package');
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.json',
-    // cwd
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toHaveProperty('en');
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.json',
-    // cwd
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toHaveProperty('zh');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.json'
+      // cwd
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toHaveProperty('package');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.json'
+      // cwd
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toHaveProperty('en');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.json'
+      // cwd
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toHaveProperty('zh');
 });
 
 // @see https://github.com/imsobear/blog/issues/48
 test('set pattern "{,!(node_modules)/**/}*.{json,js}", with cwd "path.join(__dirname, \'__mock__\')"', () => {
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.{json,js}',
-    // cwd
-    path.join(__dirname, '__mock__'),
-    // defaultLangName
-    // onFileParse
-    // init
-  )).not.toHaveProperty('package');
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.{json,js}',
-    // cwd
-    path.join(__dirname, '__mock__'),
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toHaveProperty('en');
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.{json,js}',
-    // cwd
-    path.join(__dirname, '__mock__'),
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toHaveProperty('zh');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.{json,js}',
+      // cwd
+      path.join(__dirname, '__mock__')
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).not.toHaveProperty('package');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.{json,js}',
+      // cwd
+      path.join(__dirname, '__mock__')
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toHaveProperty('en');
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.{json,js}',
+      // cwd
+      path.join(__dirname, '__mock__')
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toHaveProperty('zh');
 });
 
 test('set pattern "{,!(node_modules)/**/}*.{json,js}", with cwd "path.join(__dirname, \'__mock__\')"', () => {
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.{json,js}',
-    // cwd
-    path.join(__dirname, '__mock__'),
-    // defaultLangName
-    // onFileParse
-    // init
-  )).toEqual(MOCK_DATA);
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.{json,js}',
+      // cwd
+      path.join(__dirname, '__mock__')
+      // defaultLangName
+      // onFileParse
+      // init
+    )
+  ).toEqual(MOCK_DATA);
 });
 
 test('set pattern "{,!(node_modules)/**/}*.{json,js}", cwd "path.join(__dirname, \'__mock__\')", defaultLangName "en" and remove the defaultLangName data\'s prop[title].', () => {
-  expect(compileFileToI18nData(
-    // pattern
-    '{,!(node_modules)/**/}*.{json,js}',
-    // cwd
-    path.join(__dirname, '__mock__'),
-    // defaultLangName
-    'en',
-    // onFileParse
-    (fileJSON, defaultLangName, fileName) => (
-      fileName === defaultLangName ?
-        pick(fileJSON, ['subdir.name']) :
-        fileJSON
+  expect(
+    compileFileToI18nData(
+      // pattern
+      '{,!(node_modules)/**/}*.{json,js}',
+      // cwd
+      path.join(__dirname, '__mock__'),
+      // defaultLangName
+      'en',
+      // onFileParse
+      (fileJSON, defaultLangName, fileName) =>
+        fileName === defaultLangName
+          ? pick(fileJSON, ['subdir.name'])
+          : fileJSON
+      // init
     )
-    // init
-  )).not.toHaveProperty('en.title');
+  ).not.toHaveProperty('en.title');
 });

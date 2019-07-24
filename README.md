@@ -1,7 +1,10 @@
-# fis3-deploy-i18n-ejs -- A FIS3 plugin to generate html file with i18n data on deploy stage.
+# fis3-deploy-i18n-ejs
+
+A FIS3 plugin to generate html file with i18n data on deploy stage.
+
 [![npm](https://img.shields.io/npm/v/fis3-deploy-i18n-ejs.svg?style=flat-square)](https://github.com/tonyc726/fis3-deploy-i18n-ejs)
 [![Build Status](https://travis-ci.org/tonyc726/fis3-deploy-i18n-ejs.svg?style=flat-square&branch=master)](https://travis-ci.org/tonyc726/fis3-deploy-i18n-ejs)
-[![bitHound Code](https://www.bithound.io/github/tonyc726/fis3-deploy-i18n-ejs/badges/code.svg)](https://www.bithound.io/github/tonyc726/fis3-deploy-i18n-ejs)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg?style=flat-square)](https://github.com/facebook/jest)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square)](https://github.com/tonyc726/fis3-deploy-i18n-ejs)
 
@@ -10,7 +13,9 @@
 在前端的工程构建工具[FIS3](http://fis.baidu.com/)发布阶段，将所有拥有`isHtmlLike: true`的文件包含的多语言标记替换成指定内容，并生成文件的插件。
 
 ## 使用说明
+
 ### 如何安装
+
 ```shell
 yarn add fis3-deploy-i18n-ejs -D
 # OR
@@ -18,6 +23,7 @@ npm install fis3-deploy-i18n-ejs -D
 ```
 
 ### 默认配置
+
 ```javascript
 /**
  * @type {Object} DEFAULT_CONFIG - 插件默认配置
@@ -55,9 +61,11 @@ npm install fis3-deploy-i18n-ejs -D
 ```
 
 ## 参考示例
+
 > 具体的实验可以参考这个项目[fis3-examples](https://github.com/tonyc726/fis3-examples)。
 
 ### 项目目录结构
+
 ```
 # project root path
 │
@@ -79,14 +87,15 @@ npm install fis3-deploy-i18n-ejs -D
 ```
 
 ### 配置`fis-conf.js`中`fis3-deploy-i18n-ejs`相关的内容
-``` javascript
+
+```javascript
 // ------ translations ------
 fis.match('/i18n-folder/**', {
-  release: false
+  release: false,
 });
 // ------ templates ------
 fis.match('/template-folder/(**)/(*.html)', {
-  release: '/$1/$2'
+  release: '/$1/$2',
 });
 // ------ deploy ------
 fis.match('**', {
@@ -102,12 +111,14 @@ fis.match('**', {
       noKeepSubPathPattern: '',
       onLangFileParse() {},
     }),
-  ]
+  ],
 });
 ```
 
 ### `i18n-folder`中的文件内容示例
+
 i18n-folder/en.json
+
 ```
 {
     "hello": "hello",
@@ -116,6 +127,7 @@ i18n-folder/en.json
 ```
 
 i18n-folder/zh.json
+
 ```
 {
     "hello": "你好",
@@ -124,7 +136,9 @@ i18n-folder/zh.json
 ```
 
 ### `template-folder`待转换的模板文件夹
+
 #### `template-folder/index.html`
+
 ```
 <html>
 <head>
@@ -137,7 +151,9 @@ i18n-folder/zh.json
 </body>
 </html>
 ```
+
 #### `template-folder/sub-floder/detail.html`
+
 ```
 <html>
 <head>
@@ -152,10 +168,13 @@ i18n-folder/zh.json
 ```
 
 ### 输出结果
+
 #### 语言为`zh`的输出结果：
+
 > 默认语言为`zh`，所以输出的文件去除`$lang`层级的目录，即
 
 - `dist/index.html`
+
 ```
 <html>
 <head>
@@ -168,7 +187,9 @@ i18n-folder/zh.json
 </body>
 </html>
 ```
+
 - `dist/sub-folder/detail.html`
+
 ```
 <html>
 <head>
@@ -183,7 +204,9 @@ i18n-folder/zh.json
 ```
 
 #### 语言为`en`的输出结果：
+
 - `dist/en/index.html`
+
 ```
 <html>
 <head>
@@ -196,7 +219,9 @@ i18n-folder/zh.json
 </body>
 </html>
 ```
+
 - `dist/en/sub-folder/detail.html`
+
 ```
 <html>
 <head>
@@ -211,13 +236,16 @@ i18n-folder/zh.json
 ```
 
 ## 参考
+
 - [node-project-kit](https://github.com/tonyc726/node-project-kit) - 快速创建项目的模板
-- [glob](https://github.com/isaacs/node-glob) - 使用glob语法获取匹配文件的工具
+- [glob](https://github.com/isaacs/node-glob) - 使用 glob 语法获取匹配文件的工具
 - [ejs](https://www.npmjs.com/package/ejs) - 模板引擎
 
 ## License
+
 Copyright © 2017-present. This source code is licensed under the MIT license found in the
 [LICENSE](https://github.com/tonyc726/fis3-deploy-i18n-ejs/blob/master/LICENSE) file.
 
 ---
+
 Made by Tony ([blog](https://itony.net))

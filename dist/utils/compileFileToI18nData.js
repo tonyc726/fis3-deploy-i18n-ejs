@@ -1,84 +1,68 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, "__esModule", {
+var _interopRequireDefault = require("@babel/runtime-corejs3/helpers/interopRequireDefault");
+
+var _Object$defineProperty = require("@babel/runtime-corejs3/core-js-stable/object/define-property");
+
+_Object$defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _defineProperty2 = require('babel-runtime/helpers/defineProperty');
+exports.default = void 0;
 
-var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+var _forEach2 = _interopRequireDefault(require("lodash/forEach"));
 
-var _forEach2 = require('lodash/forEach');
+var _cloneDeep2 = _interopRequireDefault(require("lodash/cloneDeep"));
 
-var _forEach3 = _interopRequireDefault(_forEach2);
+var _isFunction2 = _interopRequireDefault(require("lodash/isFunction"));
 
-var _cloneDeep2 = require('lodash/cloneDeep');
+var _isEmpty2 = _interopRequireDefault(require("lodash/isEmpty"));
 
-var _cloneDeep3 = _interopRequireDefault(_cloneDeep2);
+var _isPlainObject2 = _interopRequireDefault(require("lodash/isPlainObject"));
 
-var _isFunction2 = require('lodash/isFunction');
+var _merge2 = _interopRequireDefault(require("lodash/merge"));
 
-var _isFunction3 = _interopRequireDefault(_isFunction2);
+var _path = _interopRequireDefault(require("path"));
 
-var _isEmpty2 = require('lodash/isEmpty');
+var _fs = _interopRequireDefault(require("fs"));
 
-var _isEmpty3 = _interopRequireDefault(_isEmpty2);
+var _glob = _interopRequireDefault(require("glob"));
 
-var _isPlainObject2 = require('lodash/isPlainObject');
+var _isGlob = _interopRequireDefault(require("is-glob"));
 
-var _isPlainObject3 = _interopRequireDefault(_isPlainObject2);
+var _default = (pattern, cwd = process.cwd(), defaultLangName = '', onFileParse, init) => {
+  const result = (0, _isPlainObject2.default)(init) && !(0, _isEmpty2.default)(init) ? (0, _cloneDeep2.default)(init) : {};
 
-var _merge3 = require('lodash/merge');
-
-var _merge4 = _interopRequireDefault(_merge3);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _fs = require('fs');
-
-var _fs2 = _interopRequireDefault(_fs);
-
-var _glob = require('glob');
-
-var _glob2 = _interopRequireDefault(_glob);
-
-var _isGlob = require('is-glob');
-
-var _isGlob2 = _interopRequireDefault(_isGlob);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function (pattern) {
-  var cwd = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : process.cwd();
-  var defaultLangName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-  var onFileParse = arguments[3];
-  var init = arguments[4];
-
-  var result = (0, _isPlainObject3.default)(init) && !(0, _isEmpty3.default)(init) ? (0, _cloneDeep3.default)(init) : {};
-
-  if ((0, _isGlob2.default)(pattern)) {
-    var i18nFiles = _glob2.default.sync(pattern, {
-      cwd: cwd
+  if ((0, _isGlob.default)(pattern)) {
+    const i18nFiles = _glob.default.sync(pattern, {
+      cwd
     });
 
-    (0, _forEach3.default)(i18nFiles, function (filePath) {
-      var fileAbsolutePath = _path2.default.join(cwd, filePath);
-      var filePathParse = _path2.default.parse(fileAbsolutePath);
-      var fileName = filePathParse.name;
-      var fileJSON = null;
+    (0, _forEach2.default)(i18nFiles, filePath => {
+      const fileAbsolutePath = _path.default.join(cwd, filePath);
+
+      const filePathParse = _path.default.parse(fileAbsolutePath);
+
+      const fileName = filePathParse.name;
+      let fileJSON = null;
+
       try {
-        fileJSON = JSON.parse(_fs2.default.readFileSync(fileAbsolutePath, 'utf8'));
+        fileJSON = JSON.parse(_fs.default.readFileSync(fileAbsolutePath, 'utf8'));
       } catch (err) {
-        console.error('\nPlugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error:\n' + err + '\n        ');
+        console.error(`
+Plugin(fis3-deploy-i18n-ejs/utils/compileFileToI18nData) Error:
+${err}
+        `);
       }
 
-      (0, _merge4.default)(result, (0, _defineProperty3.default)({}, fileName, !(0, _isFunction3.default)(onFileParse) ? fileJSON : onFileParse(fileJSON, defaultLangName, fileName)));
+      (0, _merge2.default)(result, {
+        [fileName]: !(0, _isFunction2.default)(onFileParse) ? fileJSON : onFileParse(fileJSON, defaultLangName, fileName)
+      });
     });
   }
 
   return result;
 };
 
-module.exports = exports['default'];
+exports.default = _default;
+module.exports = exports.default;
