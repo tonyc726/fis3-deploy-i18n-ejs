@@ -1,3 +1,7 @@
+# WARNING: This repository is no longer maintained :warning:
+
+> 本项目不再维护，如有需要，请邮件联系
+
 # fis3-deploy-i18n-ejs
 
 A FIS3 plugin to generate html file with i18n data on deploy stage.
